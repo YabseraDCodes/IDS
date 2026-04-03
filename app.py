@@ -1,13 +1,10 @@
+import os
 from flask import Flask, render_template_string
-
-# Import your own modules
 from parser import parse_logs
 from detector import detect_bruteforce
 
-# Create Flask app
 app = Flask(__name__)
 
-# Simple HTML template (embedded, no separate file needed)
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
@@ -36,23 +33,12 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# Route: homepage
 @app.route("/")
 def home():
-    """
-    This function runs when user opens the website
-    """
-
-    # Step 1: read logs
-    logs = parse_logs("logs/auth.log")
-
-    # Step 2: detect attacks
+    logs = parse_logs("logs/auth.log")  # Ensure this path exists on Railway
     alerts = detect_bruteforce(logs)
-
-    # Step 3: send data to HTML
     return render_template_string(HTML_TEMPLATE, alerts=alerts)
 
-
-# Run the app
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Railway dynamic port
+    app.run(host="0.0.0.0", port=port)       # Important for Railway
